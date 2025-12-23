@@ -400,14 +400,24 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               if (controller.text.isNotEmpty) {
-                provider.addRoutine(
+                final newRoutine = await provider.addRoutine(
                   controller.text,
                   Icons.home.codePoint,
                   0xFF2196F3,
                 );
-                Navigator.pop(context);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  if (newRoutine != null) {
+                    // Slight delay to allow UI to rebuild with new routine selected
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      if (context.mounted) {
+                        _showAddItemDialog(context, newRoutine);
+                      }
+                    });
+                  }
+                }
               }
             },
             child: const Text('Create'),
@@ -732,7 +742,7 @@ class _SmartListItemState extends State<_SmartListItem> {
                     icon: Icon(
                       _isRecording ? Icons.stop_circle : (hasVoice ? (_isPlaying ? Icons.pause_circle : Icons.play_circle) : Icons.mic_none),
                       size: 20,
-                      color: _isRecording ? Colors.red : (hasVoice ? Colors.blue : Colors.grey.shade300),
+                      color: _isRecording ? Colors.red : (hasVoice ? Colors.blue : Colors.grey[800]),
                     ),
                     onPressed: hasVoice && !_isRecording ? _playVoiceMemo : _toggleRecording,
                     padding: EdgeInsets.zero,
@@ -744,7 +754,7 @@ class _SmartListItemState extends State<_SmartListItem> {
                     icon: Icon(
                       hasPhoto ? Icons.photo : Icons.camera_alt_outlined,
                       size: 20,
-                      color: hasPhoto ? Colors.blue : Colors.grey.shade300,
+                      color: hasPhoto ? Colors.blue : Colors.grey[800],
                     ),
                     onPressed: () async {
                       final provider = context.read<RoutineProvider>();

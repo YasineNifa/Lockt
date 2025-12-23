@@ -58,8 +58,8 @@ class RoutineProvider extends ChangeNotifier {
     return _routines.isEmpty; // Free limit: 1 routine
   }
 
-  Future<void> addRoutine(String name, int iconPoint, int colorPoint) async {
-    if (!await canAddRoutine()) return;
+  Future<Routine?> addRoutine(String name, int iconPoint, int colorPoint) async {
+    if (!await canAddRoutine()) return null;
 
     final newRoutine = Routine.create(
       name: name,
@@ -68,6 +68,8 @@ class RoutineProvider extends ChangeNotifier {
     );
     await _storageService.saveRoutine(newRoutine);
     _loadRoutines();
+    selectRoutine(newRoutine.id);
+    return newRoutine;
   }
 
   Future<void> deleteRoutine(Routine routine) async {
