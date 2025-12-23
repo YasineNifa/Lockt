@@ -47,7 +47,7 @@ class RevenueProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> purchaseLifetime() async {
+  Future<bool> purchaseLifetime() async {
     try {
       final offerings = await Purchases.getOfferings();
       if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
@@ -57,11 +57,14 @@ class RevenueProvider extends ChangeNotifier {
         
         final purchaseResult = await Purchases.purchasePackage(package);
         _updateCustomerStatus(purchaseResult.customerInfo);
+        return true;
       } else {
         debugPrint("No offerings available");
+        return false;
       }
     } catch (e) {
       debugPrint("Error purchasing package: $e");
+      return false;
     }
   }
   

@@ -48,8 +48,14 @@ class UpgradeScreen extends StatelessWidget {
                   const _FeatureRow(icon: Icons.widgets, title: 'Home Widget', subtitle: 'Check status at a glance.'),
                   const SizedBox(height: 40),
                   FilledButton(
-                    onPressed: () {
-                      context.read<RevenueProvider>().purchaseLifetime();
+                    onPressed: () async {
+                      final success = await context.read<RevenueProvider>().purchaseLifetime();
+                      if (success && context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Welcome to Premium!')),
+                        );
+                      }
                     },
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
