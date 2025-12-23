@@ -20,6 +20,29 @@ import 'camera_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  static const List<IconData> supportedIcons = [
+    Icons.circle_outlined,
+    Icons.local_fire_department,
+    Icons.vpn_key,
+    Icons.window,
+    Icons.power,
+    Icons.water_drop,
+    Icons.pets,
+    Icons.child_care,
+    Icons.garage,
+    Icons.lightbulb,
+    Icons.home,
+  ];
+
+  static IconData getIconFromPoint(int? codePoint) {
+    if (codePoint == null) return Icons.circle_outlined;
+    try {
+      return supportedIcons.firstWhere((icon) => icon.codePoint == codePoint);
+    } catch (_) {
+      return Icons.help_outline;
+    }
+  }
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -446,18 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final controller = TextEditingController();
     int? selectedIconPoint;
 
-    final List<IconData> icons = [
-      Icons.circle_outlined,
-      Icons.local_fire_department,
-      Icons.vpn_key,
-      Icons.window,
-      Icons.power,
-      Icons.water_drop,
-      Icons.pets,
-      Icons.child_care,
-      Icons.garage,
-      Icons.lightbulb,
-    ];
+    final List<IconData> icons = HomeScreen.supportedIcons;
 
     showDialog(
       context: context,
@@ -730,9 +742,7 @@ class _SmartListItemState extends State<_SmartListItem> {
             children: [
               // Icon (Left)
               Icon(
-                widget.item.iconPoint != null 
-                    ? IconData(widget.item.iconPoint!, fontFamily: 'MaterialIcons') 
-                    : Icons.circle_outlined, // Generic default
+                HomeScreen.getIconFromPoint(widget.item.iconPoint),
                 color: isChecked ? const Color(0xFF66BB6A) : Colors.grey,
               ),
               const SizedBox(width: 16),

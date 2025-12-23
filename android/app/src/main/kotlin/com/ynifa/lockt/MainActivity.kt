@@ -1,4 +1,4 @@
-package com.example.lockt.lockt
+package com.ynifa.lockt
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
