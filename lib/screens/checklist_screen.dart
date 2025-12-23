@@ -255,6 +255,21 @@ class _ChecklistItemTileState extends State<_ChecklistItemTile> {
                 }
               },
             ),
+            // Menu Button
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.grey),
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _showEditItemDialog(context);
+                } else if (value == 'delete') {
+                  _showDeleteItemDialog(context);
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                const PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: Colors.red))),
+              ],
+            ),
           ],
         ),
       ),
