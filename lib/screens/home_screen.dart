@@ -450,50 +450,52 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, setState) {
           return AlertDialog(
             title: const Text('New Item'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: controller,
-                  decoration: const InputDecoration(hintText: 'e.g., Check Stove'),
-                  autofocus: true,
-                  textCapitalization: TextCapitalization.sentences,
-                ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: icons.map((icon) {
-                      final isSelected = (selectedIconPoint == null && icon == Icons.circle_outlined) || 
-                                         (selectedIconPoint == icon.codePoint);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              selectedIconPoint = icon == Icons.circle_outlined ? null : icon.codePoint;
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(24),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              // ignore: deprecated_member_use
-                              color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
-                              shape: BoxShape.circle,
-                              border: isSelected ? Border.all(color: Theme.of(context).primaryColor, width: 2) : null,
-                            ),
-                            child: Icon(
-                              icon,
-                              color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(hintText: 'e.g., Check Stove'),
+                    autofocus: true,
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: icons.map((icon) {
+                        final isSelected = (selectedIconPoint == null && icon == Icons.circle_outlined) || 
+                                           (selectedIconPoint == icon.codePoint);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedIconPoint = icon == Icons.circle_outlined ? null : icon.codePoint;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                // ignore: deprecated_member_use
+                                color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
+                                shape: BoxShape.circle,
+                                border: isSelected ? Border.all(color: Theme.of(context).primaryColor, width: 2) : null,
+                              ),
+                              child: Icon(
+                                icon,
+                                color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             actions: [
               TextButton(
