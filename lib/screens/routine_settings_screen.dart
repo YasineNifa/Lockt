@@ -211,6 +211,41 @@ class _RoutineSettingsScreenState extends State<RoutineSettingsScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 32),
+          
+          // Delete Routine Button
+          Center(
+            child: TextButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Routine?'),
+                    content: Text('Are you sure you want to delete "${widget.routine.name}"? This action cannot be undone.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(foregroundColor: Colors.black),
+                        child: const Text('Cancel'),
+                      ),
+                      FilledButton(
+                        onPressed: () {
+                          context.read<RoutineProvider>().deleteRoutine(widget.routine);
+                          Navigator.pop(context); // Close dialog
+                          Navigator.pop(context); // Close settings
+                        },
+                        style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              label: const Text('Delete Routine', style: TextStyle(color: Colors.red)),
+            ),
+          ),
+          const SizedBox(height: 32),
         ],
       ),
     );
