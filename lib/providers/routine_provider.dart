@@ -7,16 +7,42 @@ import '../services/storage_service.dart';
 class RoutineProvider extends ChangeNotifier {
   final StorageService _storageService;
   List<Routine> _routines = [];
+  String? _selectedRoutineId;
 
   RoutineProvider(this._storageService) {
     _loadRoutines();
   }
 
   List<Routine> get routines => _routines;
+  
+  Routine? get selectedRoutine {
+    if (_routines.isEmpty) return null;
+    if (_selectedRoutineId == null) return _routines.first;
+    try {
+      return _routines.firstWhere((r) => r.id == _selectedRoutineId);
+    } catch (e) {
+      // If the selected routine ID no longer exists, default to the first one.
+      return _routines.first;
+    }
+  }
+
+  void selectRoutine(String id) {
+    _selectedRoutineId = id;
+    notifyListeners();
+  }
+
   bool get isPremium => _storageService.isPremium;
 
   void _loadRoutines() {
     _routines = _storageService.getRoutines();
+    // Ensure _selectedRoutineId is valid after loading routines
+    if (_selectedRoutineId != null && !_routines.any((r) => r.id == _selectedRoutineId)) {
+      _selectedRoutineId = _routines.isNotEmpty ? _routines.first.id : null;
+    } else if (_selectedRoutineId == null && _routines.isNotEmpty) {
+      _selectedRoutineId = _routines.first.id;
+    } else if (_routines.isEmpty) {
+      _selectedRoutineId = null;
+    }
     notifyListeners();
     _updateWidget();
   }
@@ -76,8 +102,8 @@ class RoutineProvider extends ChangeNotifier {
     _updateWidget();
   }
 
-  Future<void> addItem(Routine routine, String name) async {
-    final newItem = ChecklistItem.create(name: name);
+  Future<void> addItem(Routine routine, String name, {int? iconPoint}) async {
+    final newItem = ChecklistItem.create(name: name, iconPoint: iconPoint);
     routine.items.add(newItem);
     await routine.save();
     notifyListeners();

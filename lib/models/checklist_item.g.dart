@@ -22,6 +22,7 @@ class ChecklistItemAdapter extends TypeAdapter<ChecklistItem> {
       isChecked: fields[2] as bool,
       checkedAt: fields[3] as DateTime?,
       photoPath: fields[4] as String?,
+      iconPoint: fields[8] as int?,
       voiceMemoPath: fields[5] as String?,
       voiceMemoCreatedAt: fields[6] as DateTime?,
     );
@@ -30,7 +31,7 @@ class ChecklistItemAdapter extends TypeAdapter<ChecklistItem> {
   @override
   void write(BinaryWriter writer, ChecklistItem obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class ChecklistItemAdapter extends TypeAdapter<ChecklistItem> {
       ..writeByte(5)
       ..write(obj.voiceMemoPath)
       ..writeByte(6)
-      ..write(obj.voiceMemoCreatedAt);
+      ..write(obj.voiceMemoCreatedAt)
+      ..writeByte(8)
+      ..write(obj.iconPoint);
   }
 
   @override
