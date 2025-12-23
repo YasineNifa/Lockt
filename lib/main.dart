@@ -6,6 +6,8 @@ import 'providers/routine_provider.dart';
 import 'screens/home_screen.dart';
 import 'utils/theme.dart';
 
+import 'providers/revenue_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -13,10 +15,14 @@ void main() async {
   await storageService.init();
   await storageService.checkAndReset();
 
+  final revenueProvider = RevenueProvider();
+  await revenueProvider.init();
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => RoutineProvider(storageService)),
+        ChangeNotifierProvider.value(value: revenueProvider),
+        ChangeNotifierProvider(create: (_) => RoutineProvider(storageService, revenueProvider)),
       ],
       child: const LocktApp(),
     ),

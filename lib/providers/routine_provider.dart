@@ -3,14 +3,28 @@ import 'package:home_widget/home_widget.dart';
 import '../models/routine.dart';
 import '../models/checklist_item.dart';
 import '../services/storage_service.dart';
+import 'revenue_provider.dart';
 
 class RoutineProvider extends ChangeNotifier {
   final StorageService _storageService;
+  final RevenueProvider _revenueProvider;
   List<Routine> _routines = [];
   String? _selectedRoutineId;
 
-  RoutineProvider(this._storageService) {
+  RoutineProvider(this._storageService, this._revenueProvider) {
     _loadRoutines();
+    _revenueProvider.addListener(_onPremiumChange);
+  }
+
+  void _onPremiumChange() {
+    notifyListeners();
+    _updateWidget();
+  }
+
+  @override
+  void dispose() {
+    _revenueProvider.removeListener(_onPremiumChange);
+    super.dispose();
   }
 
   List<Routine> get routines => _routines;
@@ -31,7 +45,7 @@ class RoutineProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isPremium => _storageService.isPremium;
+  bool get isPremium => _revenueProvider.isPremium;
 
   void _loadRoutines() {
     _routines = _storageService.getRoutines();
@@ -47,10 +61,12 @@ class RoutineProvider extends ChangeNotifier {
     _updateWidget();
   }
 
+  // Deprecated: Use RevenueProvider.restorePurchases() or showPaywall()
   Future<void> setPremium(bool value) async {
-    await _storageService.setPremium(value);
-    notifyListeners();
-    _updateWidget();
+    // await _storageService.setPremium(value);
+    // notifyListeners();
+    // _updateWidget();
+    debugPrint("setPremium is deprecated. Use RevenueCat.");
   }
 
   Future<bool> canAddRoutine() async {

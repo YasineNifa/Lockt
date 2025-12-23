@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/routine_provider.dart';
+
+import '../providers/revenue_provider.dart';
 
 class UpgradeScreen extends StatelessWidget {
   const UpgradeScreen({super.key});
@@ -8,19 +9,8 @@ class UpgradeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              // ignore: deprecated_member_use
-              Theme.of(context).colorScheme.primary.withOpacity(0.2),
-              Theme.of(context).scaffoldBackgroundColor,
-            ],
-          ),
-        ),
-        child: SafeArea(
+      backgroundColor: Colors.white,
+      body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -59,12 +49,7 @@ class UpgradeScreen extends StatelessWidget {
                   const SizedBox(height: 40),
                   FilledButton(
                     onPressed: () {
-                      // Mock Purchase
-                      context.read<RoutineProvider>().setPremium(true);
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Welcome to Premium!')),
-                      );
+                      context.read<RevenueProvider>().purchaseLifetime();
                     },
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -72,22 +57,20 @@ class UpgradeScreen extends StatelessWidget {
                       foregroundColor: Colors.black,
                     ),
                     child: const Text(
-                      'Get Lifetime Access - 4.99€',
+                      'Get Lifetime Access',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () {
-                       // Mock Restore
-                      context.read<RoutineProvider>().setPremium(true);
-                      Navigator.pop(context);
+                       context.read<RevenueProvider>().restorePurchases();
+                       Navigator.pop(context);
                     },
                     child: const Text('Restore Purchase'),
                   ),
                 ],
               ),
-            ),
           ),
         ),
       ),
