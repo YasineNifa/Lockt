@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Consumer<RoutineProvider>(
         builder: (context, provider, child) {
           final routine = provider.selectedRoutine;
@@ -450,8 +451,8 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, setState) {
           return AlertDialog(
             title: const Text('New Item'),
-            content: SingleChildScrollView(
-              child: Column(
+            scrollable: true,
+            content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
@@ -494,8 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       }).toList(),
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
             actions: [
               TextButton(
