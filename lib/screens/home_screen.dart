@@ -26,11 +26,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late ConfettiController _confettiController;
+  bool _wasComplete = false;
+  String? _lastRoutineId;
 
   @override
   void initState() {
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    
+    // Initialize state based on current routine if available
+    // We can't access provider easily here without context in build, 
+    // but we can rely on the first build to set initial state.
+    // However, to prevent auto-play on load, we should default _wasComplete to true 
+    // if we want to be safe, OR handle it in build.
+    // Let's handle initialization in build.
   }
 
   @override
@@ -52,19 +61,24 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           // Check for completion to trigger confetti
+          // Check for completion to trigger confetti
           final allChecked = routine.items.isNotEmpty && routine.items.every((i) => i.isChecked);
-          if (allChecked && _confettiController.state != ConfettiControllerState.playing) {
-            // Only play if we just transitioned? For now, play if all checked.
-            // Better: Play only once. But let's leave it simple.
-            // Actually, playing on every build is bad.
-            // We should track previous state or just let the user trigger it manually?
-            // User said: "Lancer une petite animation... Si l'utilisateur a tout coché".
-            // Let's trigger it in the post-frame callback if not playing.
-             WidgetsBinding.instance.addPostFrameCallback((_) {
-               if (_confettiController.state == ConfettiControllerState.stopped) {
-                 _confettiController.play();
-               }
-             });
+          
+          // Handle routine switching
+          if (_lastRoutineId != routine.id) {
+            _lastRoutineId = routine.id;
+            _wasComplete = allChecked; // Sync state without playing
+          } else {
+            // Same routine, check for transition
+            if (allChecked && !_wasComplete) {
+              // Transitioned from incomplete to complete -> PLAY
+               WidgetsBinding.instance.addPostFrameCallback((_) {
+                 if (_confettiController.state == ConfettiControllerState.stopped) {
+                   _confettiController.play();
+                 }
+               });
+            }
+            _wasComplete = allChecked;
           }
 
           return Stack(
