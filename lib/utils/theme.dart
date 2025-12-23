@@ -22,4 +22,30 @@ class AppTheme {
     // CardTheme removed to avoid potential type mismatch in this environment
     useMaterial3: true,
   );
+
+  static final lightTheme = ThemeData(
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: const Color(0xFFF5F7F5), // Soft Cream/Green tint
+    primaryColor: const Color(0xFF66BB6A), // Zen Green (Level 400)
+    colorScheme: const ColorScheme.light(
+      primary: Color(0xFF66BB6A),
+      secondary: Color(0xFFA5D6A7), // Mint Green
+      surface: Colors.white,
+      onSurface: Color(0xFF2E3E2E), // Dark Green/Grey Text
+      error: Color(0xFFE57373),
+    ),
+    textTheme: GoogleFonts.outfitTextTheme(ThemeData.light().textTheme).apply(
+      bodyColor: const Color(0xFF2E3E2E),
+      displayColor: const Color(0xFF1B5E20),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Color(0xFFF5F7F5),
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: Color(0xFF2E3E2E)),
+      titleTextStyle: TextStyle(color: Color(0xFF1B5E20), fontSize: 20, fontWeight: FontWeight.bold),
+    ),
+
+    useMaterial3: true,
+  );
 }

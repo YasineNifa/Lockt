@@ -30,7 +30,9 @@ class LocktApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lockt',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.light, // Force Light Mode for "Zen Green"
       home: const RoutineListScreen(),
     );
   }

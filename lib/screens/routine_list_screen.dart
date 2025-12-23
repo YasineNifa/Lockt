@@ -33,7 +33,7 @@ class RoutineListScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline, size: 80, color: Colors.grey[700]),
+                  Icon(Icons.check_circle_outline, size: 80, color: Theme.of(context).disabledColor),
                   const SizedBox(height: 16),
                   Text(
                     'No routines yet',
@@ -87,6 +87,7 @@ class RoutineListScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -163,7 +164,8 @@ class _RoutineCard extends StatelessWidget {
               const SizedBox(height: 16),
               LinearProgressIndicator(
                 value: progress,
-                backgroundColor: Colors.grey[800],
+                // ignore: deprecated_member_use
+                backgroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
               const SizedBox(height: 8),
@@ -193,6 +195,7 @@ class _RoutineCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -218,6 +221,7 @@ class _RoutineCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: const Text('Cancel'),
           ),
           FilledButton(

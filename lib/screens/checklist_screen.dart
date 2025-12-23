@@ -36,7 +36,11 @@ class ChecklistScreen extends StatelessWidget {
                   title: const Text('Reset List?'),
                   content: const Text('This will uncheck all items and clear proofs.'),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                    TextButton(
+            onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
+            child: const Text('Cancel'),
+          ),
                     FilledButton(
                       onPressed: () {
                         context.read<RoutineProvider>().manualReset(routine);
@@ -110,6 +114,7 @@ class ChecklistScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -196,7 +201,7 @@ class _ChecklistItemTileState extends State<_ChecklistItemTile> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      color: widget.item.isChecked ? const Color(0xFF2C2C2C) : Theme.of(context).cardTheme.color,
+      color: widget.item.isChecked ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).cardTheme.color,
       child: ListTile(
         onLongPress: () {
           _showItemOptions(context);
@@ -338,6 +343,7 @@ class _ChecklistItemTileState extends State<_ChecklistItemTile> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -363,6 +369,7 @@ class _ChecklistItemTileState extends State<_ChecklistItemTile> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.black),
             child: const Text('Cancel'),
           ),
           FilledButton(
