@@ -4,6 +4,7 @@ import '../providers/routine_provider.dart';
 import '../models/routine.dart';
 import 'checklist_screen.dart';
 import 'upgrade_screen.dart';
+import 'routine_settings_screen.dart';
 
 class RoutineListScreen extends StatelessWidget {
   const RoutineListScreen({super.key});
@@ -148,14 +149,19 @@ class _RoutineCard extends StatelessWidget {
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert),
                     onSelected: (value) {
-                      if (value == 'edit') {
-                        _showEditRoutineDialog(context, routine);
+                      if (value == 'settings') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => RoutineSettingsScreen(routine: routine),
+                          ),
+                        );
                       } else if (value == 'delete') {
                         _showDeleteRoutineDialog(context, routine);
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      const PopupMenuItem(value: 'settings', child: Text('Settings')),
                       const PopupMenuItem(value: 'delete', child: Text('Delete')),
                     ],
                   ),
@@ -180,37 +186,7 @@ class _RoutineCard extends StatelessWidget {
     );
   }
 
-  void _showEditRoutineDialog(BuildContext context, Routine routine) {
-    final controller = TextEditingController(text: routine.name);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Routine'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Routine Name'),
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(foregroundColor: Colors.black),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                context.read<RoutineProvider>().updateRoutine(routine, controller.text);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   void _showDeleteRoutineDialog(BuildContext context, Routine routine) {
     showDialog(

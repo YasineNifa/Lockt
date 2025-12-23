@@ -134,23 +134,27 @@ class RoutineProvider extends ChangeNotifier {
   }
 
   Future<void> _updateWidget() async {
-    if (!isPremium) return;
-    
-    int totalUnchecked = 0;
-    for (var routine in _routines) {
-      totalUnchecked += routine.items.where((i) => !i.isChecked).length;
-    }
-
-    final status = totalUnchecked == 0 ? "All OK ✅" : "$totalUnchecked items left";
-    
     try {
-      await HomeWidget.saveWidgetData<String>('status', status);
+      final routines = _storageService.getRoutines();
+      int totalUnchecked = 0;
+      for (var routine in routines) {
+        totalUnchecked += routine.items.where((i) => !i.isChecked).length;
+      }
+
+      final message = totalUnchecked == 0 ? "All OK ✅" : "$totalUnchecked items left";
+      
+      await HomeWidget.saveWidgetData<String>('app_status', message);
       await HomeWidget.updateWidget(
         name: 'LocktWidget',
         iOSName: 'LocktWidget',
+        androidName: 'LocktWidget',
       );
     } catch (e) {
-      debugPrint('Error updating widget: $e');
+      debugPrint("Error updating widget: $e");
     }
+  }
+
+  void notifyListenersPublic() {
+    notifyListeners();
   }
 }
