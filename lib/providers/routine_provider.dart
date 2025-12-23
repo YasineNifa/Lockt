@@ -49,6 +49,33 @@ class RoutineProvider extends ChangeNotifier {
     _loadRoutines();
   }
 
+  Future<void> updateRoutine(Routine routine, String name) async {
+    routine.name = name;
+    await routine.save();
+    notifyListeners();
+    _updateWidget();
+  }
+
+  Future<void> updateItem(Routine routine, ChecklistItem item, String name) async {
+    item.name = name;
+    await routine.save();
+    notifyListeners();
+  }
+
+  Future<void> deleteItem(Routine routine, ChecklistItem item) async {
+    routine.items.remove(item);
+    // Also delete media files if any
+    if (item.photoPath != null) {
+      await _storageService.deleteFile(item.photoPath!);
+    }
+    if (item.voiceMemoPath != null) {
+      await _storageService.deleteFile(item.voiceMemoPath!);
+    }
+    await routine.save();
+    notifyListeners();
+    _updateWidget();
+  }
+
   Future<void> addItem(Routine routine, String name) async {
     final newItem = ChecklistItem.create(name: name);
     routine.items.add(newItem);

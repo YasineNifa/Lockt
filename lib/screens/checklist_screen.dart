@@ -198,6 +198,9 @@ class _ChecklistItemTileState extends State<_ChecklistItemTile> {
       margin: const EdgeInsets.only(bottom: 8),
       color: widget.item.isChecked ? const Color(0xFF2C2C2C) : Theme.of(context).cardTheme.color,
       child: ListTile(
+        onLongPress: () {
+          _showItemOptions(context);
+        },
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Checkbox(
           value: widget.item.isChecked,
@@ -272,6 +275,90 @@ class _ChecklistItemTileState extends State<_ChecklistItemTile> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showItemOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit Name'),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditItemDialog(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Delete Item', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteItemDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditItemDialog(BuildContext context) {
+    final controller = TextEditingController(text: widget.item.name);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Item'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Item Name'),
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                context.read<RoutineProvider>().updateItem(widget.routine, widget.item, controller.text);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteItemDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Item?'),
+        content: Text('Are you sure you want to delete "${widget.item.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<RoutineProvider>().deleteItem(widget.routine, widget.item);
+              Navigator.pop(context);
+            },
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }

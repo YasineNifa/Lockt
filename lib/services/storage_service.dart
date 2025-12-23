@@ -91,7 +91,7 @@ class StorageService {
           // Check Photo
           if (item.photoPath != null && item.checkedAt != null) {
              if (now.difference(item.checkedAt!) > deleteDuration) {
-               await _deleteFile(item.photoPath!);
+               await deleteFile(item.photoPath!);
                item.photoPath = null;
                changed = true;
              }
@@ -99,7 +99,7 @@ class StorageService {
           // Check Audio
           if (item.voiceMemoPath != null && item.voiceMemoCreatedAt != null) {
              if (now.difference(item.voiceMemoCreatedAt!) > deleteDuration) {
-               await _deleteFile(item.voiceMemoPath!);
+               await deleteFile(item.voiceMemoPath!);
                item.voiceMemoPath = null;
                item.voiceMemoCreatedAt = null;
                changed = true;
@@ -132,7 +132,7 @@ class StorageService {
     item.voiceMemoCreatedAt = null;
   }
 
-  Future<void> _deleteFile(String path) async {
+  Future<void> deleteFile(String path) async {
     try {
       final file = File(path);
       if (await file.exists()) {

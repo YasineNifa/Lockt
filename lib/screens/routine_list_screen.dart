@@ -144,11 +144,19 @@ class _RoutineCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                  IconButton(
+                  PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert),
-                    onPressed: () {
-                      // TODO: Edit/Delete options
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _showEditRoutineDialog(context, routine);
+                      } else if (value == 'delete') {
+                        _showDeleteRoutineDialog(context, routine);
+                      }
                     },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                    ],
                   ),
                 ],
               ),
@@ -166,6 +174,61 @@ class _RoutineCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showEditRoutineDialog(BuildContext context, Routine routine) {
+    final controller = TextEditingController(text: routine.name);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Routine'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Routine Name'),
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                context.read<RoutineProvider>().updateRoutine(routine, controller.text);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteRoutineDialog(BuildContext context, Routine routine) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Routine?'),
+        content: Text('Are you sure you want to delete "${routine.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<RoutineProvider>().deleteRoutine(routine);
+              Navigator.pop(context);
+            },
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
