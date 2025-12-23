@@ -20,12 +20,20 @@ class ChecklistItem extends HiveObject {
   @HiveField(4)
   String? photoPath;
 
+  @HiveField(5)
+  String? voiceMemoPath;
+
+  @HiveField(6)
+  DateTime? voiceMemoCreatedAt;
+
   ChecklistItem({
     required this.id,
     required this.name,
     this.isChecked = false,
     this.checkedAt,
     this.photoPath,
+    this.voiceMemoPath,
+    this.voiceMemoCreatedAt,
   });
 
   factory ChecklistItem.create({required String name}) {

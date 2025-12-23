@@ -4,6 +4,14 @@ import 'checklist_item.dart';
 
 part 'routine.g.dart';
 
+@HiveType(typeId: 2)
+enum ResetPolicy {
+  @HiveField(0)
+  daily4am,
+  @HiveField(1)
+  customDuration,
+}
+
 @HiveType(typeId: 1)
 class Routine extends HiveObject {
   @HiveField(0)
@@ -21,12 +29,24 @@ class Routine extends HiveObject {
   @HiveField(4)
   int colorPoint;
 
+  @HiveField(5)
+  ResetPolicy? resetPolicy;
+
+  @HiveField(6)
+  int? customResetDurationMinutes; // Stored in minutes for simplicity
+
+  @HiveField(7)
+  int? mediaAutoDeleteDurationHours; // Stored in hours
+
   Routine({
     required this.id,
     required this.name,
     required this.items,
     required this.iconPoint,
     required this.colorPoint,
+    this.resetPolicy = ResetPolicy.daily4am,
+    this.customResetDurationMinutes,
+    this.mediaAutoDeleteDurationHours,
   });
 
   factory Routine.create({

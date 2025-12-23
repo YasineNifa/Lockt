@@ -1,10 +1,18 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:record/record.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
+
 import '../models/routine.dart';
 import '../models/checklist_item.dart';
 import '../providers/routine_provider.dart';
 import 'camera_screen.dart';
+import 'upgrade_screen.dart';
 
 class ChecklistScreen extends StatelessWidget {
   final Routine routine;
@@ -16,14 +24,35 @@ class ChecklistScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(routine.name),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Manual Reset',
+            onPressed: () {
+              // Manual Reset is Free
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Reset List?'),
+                  content: const Text('This will uncheck all items and clear proofs.'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                    FilledButton(
+                      onPressed: () {
+                        context.read<RoutineProvider>().manualReset(routine);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Reset'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer<RoutineProvider>(
         builder: (context, provider, child) {
-          // Re-fetch routine from provider to ensure we have latest state if needed
-          // Ideally we rely on the object being updated in place since it's a HiveObject
-          // but provider.routines is the source of truth for the list.
-          // For now, using the passed routine object is fine as Hive objects update in place.
-          
           if (routine.items.isEmpty) {
              return Center(
               child: Column(
@@ -44,7 +73,7 @@ class ChecklistScreen extends StatelessWidget {
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: routine.items.length + 1, // +1 for the Add button at bottom
+            itemCount: routine.items.length + 1,
             itemBuilder: (context, index) {
               if (index == routine.items.length) {
                 return Padding(
@@ -98,53 +127,132 @@ class ChecklistScreen extends StatelessWidget {
   }
 }
 
-class _ChecklistItemTile extends StatelessWidget {
+class _ChecklistItemTile extends StatefulWidget {
   final Routine routine;
   final ChecklistItem item;
 
   const _ChecklistItemTile({required this.routine, required this.item});
 
   @override
+  State<_ChecklistItemTile> createState() => _ChecklistItemTileState();
+}
+
+class _ChecklistItemTileState extends State<_ChecklistItemTile> {
+  final AudioRecorder _audioRecorder = AudioRecorder();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isRecording = false;
+  bool _isPlaying = false;
+
+  @override
+  void dispose() {
+    _audioRecorder.dispose();
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  Future<void> _toggleRecording() async {
+    final provider = context.read<RoutineProvider>();
+    if (!provider.isPremium) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen()));
+      return;
+    }
+
+    if (_isRecording) {
+      final path = await _audioRecorder.stop();
+      setState(() => _isRecording = false);
+      if (path != null) {
+        provider.setItemVoiceMemo(widget.routine, widget.item, path);
+      }
+    } else {
+      if (await Permission.microphone.request().isGranted) {
+        final dir = await getApplicationDocumentsDirectory();
+        final filePath = path.join(dir.path, 'voice_${const Uuid().v4()}.m4a');
+        
+        await _audioRecorder.start(const RecordConfig(), path: filePath);
+        setState(() => _isRecording = true);
+      }
+    }
+  }
+
+  Future<void> _playVoiceMemo() async {
+    if (widget.item.voiceMemoPath == null) return;
+    
+    if (_isPlaying) {
+      await _audioPlayer.stop();
+      setState(() => _isPlaying = false);
+    } else {
+      await _audioPlayer.play(DeviceFileSource(widget.item.voiceMemoPath!));
+      setState(() => _isPlaying = true);
+      _audioPlayer.onPlayerComplete.listen((_) {
+        if (mounted) setState(() => _isPlaying = false);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final hasPhoto = widget.item.photoPath != null;
+    final hasVoice = widget.item.voiceMemoPath != null;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      color: item.isChecked ? const Color(0xFF2C2C2C) : Theme.of(context).cardTheme.color,
+      color: widget.item.isChecked ? const Color(0xFF2C2C2C) : Theme.of(context).cardTheme.color,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Checkbox(
-          value: item.isChecked,
+          value: widget.item.isChecked,
           onChanged: (value) {
-            context.read<RoutineProvider>().toggleItem(routine, item, value);
+            context.read<RoutineProvider>().toggleItem(widget.routine, widget.item, value);
           },
           shape: const CircleBorder(),
         ),
         title: Text(
-          item.name,
+          widget.item.name,
           style: TextStyle(
-            decoration: item.isChecked ? TextDecoration.lineThrough : null,
-            color: item.isChecked ? Colors.grey : null,
+            decoration: widget.item.isChecked ? TextDecoration.lineThrough : null,
+            color: widget.item.isChecked ? Colors.grey : null,
           ),
         ),
-        trailing: IconButton(
-          icon: Icon(
-            item.photoPath != null ? Icons.photo : Icons.camera_alt_outlined,
-            color: item.photoPath != null ? Theme.of(context).colorScheme.primary : Colors.grey,
-          ),
-          onPressed: () async {
-            if (item.photoPath != null) {
-              _showPhotoDialog(context, item.photoPath!);
-            } else {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CameraScreen()),
-              );
-              if (result != null && result is String) {
-                if (context.mounted) {
-                  context.read<RoutineProvider>().setItemPhoto(routine, item, result);
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Voice Memo Button
+            IconButton(
+              icon: Icon(
+                _isRecording ? Icons.stop_circle : (hasVoice ? (_isPlaying ? Icons.pause_circle : Icons.play_circle) : Icons.mic),
+                color: _isRecording ? Colors.red : (hasVoice ? Colors.green : Colors.grey),
+              ),
+              onPressed: hasVoice && !_isRecording ? _playVoiceMemo : _toggleRecording,
+            ),
+            // Photo Button
+            IconButton(
+              icon: Icon(
+                hasPhoto ? Icons.photo : Icons.camera_alt_outlined,
+                color: hasPhoto ? Theme.of(context).colorScheme.primary : Colors.grey,
+              ),
+              onPressed: () async {
+                final provider = context.read<RoutineProvider>();
+                if (!provider.isPremium && !hasPhoto) {
+                   Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen()));
+                   return;
                 }
-              }
-            }
-          },
+
+                if (hasPhoto) {
+                  _showPhotoDialog(context, widget.item.photoPath!);
+                } else {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CameraScreen()),
+                  );
+                  if (result != null && result is String) {
+                    if (context.mounted) {
+                      provider.setItemPhoto(widget.routine, widget.item, result);
+                    }
+                  }
+                }
+              },
+            ),
+          ],
         ),
       ),
     );

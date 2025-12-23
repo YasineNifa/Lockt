@@ -10,7 +10,7 @@ void main() async {
   
   final storageService = StorageService();
   await storageService.init();
-  await storageService.checkAndResetDaily();
+  await storageService.checkAndReset();
 
   runApp(
     MultiProvider(

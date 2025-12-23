@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/routine_provider.dart';
 import '../models/routine.dart';
 import 'checklist_screen.dart';
+import 'upgrade_screen.dart';
 
 class RoutineListScreen extends StatelessWidget {
   const RoutineListScreen({super.key});
@@ -12,6 +13,18 @@ class RoutineListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lockt'),
+        actions: [
+          Consumer<RoutineProvider>(
+            builder: (context, provider, _) {
+              if (provider.isPremium) return const SizedBox.shrink();
+              return TextButton.icon(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen())),
+                icon: const Icon(Icons.star, color: Colors.amber),
+                label: const Text('Premium', style: TextStyle(color: Colors.amber)),
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer<RoutineProvider>(
         builder: (context, provider, child) {
@@ -50,8 +63,17 @@ class RoutineListScreen extends StatelessWidget {
     );
   }
 
-  void _showAddRoutineDialog(BuildContext context) {
+  void _showAddRoutineDialog(BuildContext context) async {
+    final provider = context.read<RoutineProvider>();
+    if (!await provider.canAddRoutine()) {
+    if (!context.mounted) return;
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const UpgradeScreen()));
+      return;
+    }
+
     final controller = TextEditingController();
+    if (!context.mounted) return;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
