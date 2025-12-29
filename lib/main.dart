@@ -29,8 +29,33 @@ void main() async {
   );
 }
 
-class LocktApp extends StatelessWidget {
+class LocktApp extends StatefulWidget {
   const LocktApp({super.key});
+
+  @override
+  State<LocktApp> createState() => _LocktAppState();
+}
+
+class _LocktAppState extends State<LocktApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Check for resets when app comes to foreground
+      context.read<RoutineProvider>().checkDailyReset();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

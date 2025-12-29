@@ -47,25 +47,71 @@ class UpgradeScreen extends StatelessWidget {
                   const _FeatureRow(icon: Icons.timer, title: 'Smart Reset', subtitle: 'Custom schedules.'),
                   const _FeatureRow(icon: Icons.widgets, title: 'Home Widget', subtitle: 'Check status at a glance.'),
                   const SizedBox(height: 40),
-                  FilledButton(
-                    onPressed: () async {
-                      final success = await context.read<RevenueProvider>().purchaseLifetime();
-                      if (success && context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Welcome to Premium!')),
+                  Consumer<RevenueProvider>(
+                    builder: (context, provider, child) {
+                      final offerings = provider.offerings;
+                      final errorMessage = provider.errorMessage;
+
+                      if (errorMessage != null) {
+                        return Column(
+                          children: [
+                            Text(
+                              errorMessage,
+                              style: const TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () => provider.fetchOfferings(),
+                              child: const Text('Retry'),
+                            ),
+                          ],
                         );
                       }
+
+                      final package = offerings?.current?.availablePackages.firstOrNull;
+                      final priceString = package?.storeProduct.priceString ?? '';
+
+                      if (offerings == null) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return FilledButton(
+                        onPressed: package == null
+                            ? null
+                            : () async {
+                                final success = await provider.purchaseLifetime(package);
+                                if (success && context.mounted) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Welcome to Premium!')),
+                                  );
+                                }
+                              },
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.amber,
+                          foregroundColor: Colors.black,
+                          disabledBackgroundColor: Colors.grey[300],
+                        ),
+                        child: Text(
+                          package == null ? 'Unavailable' : 'Get Lifetime Access $priceString',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      );
                     },
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.amber,
-                      foregroundColor: Colors.black,
-                    ),
-                    child: const Text(
-                      'Get Lifetime Access',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Consumer<RevenueProvider>(
+                    builder: (context, provider, _) {
+                      final package = provider.offerings?.current?.availablePackages.firstOrNull;
+                      if (package == null) return const SizedBox.shrink();
+                      return Text(
+                        'Debug: ${package.storeProduct.identifier}',
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
                   TextButton(

@@ -17,6 +17,7 @@ class RoutineProvider extends ChangeNotifier {
   }
 
   void _onPremiumChange() {
+    _storageService.setPremium(_revenueProvider.isPremium);
     notifyListeners();
     _updateWidget();
   }
