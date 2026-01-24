@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Lockt a besoin d'accéder à la caméra pour prendre des photos et les ajouter à vos notes.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Lockt a besoin d'accéder au microphone pour enregistrer vos mémos vocaux.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Lockt a besoin d'accéder à votre galerie pour importer des images dans vos notes.</string>
 </dict>
 </plist>
